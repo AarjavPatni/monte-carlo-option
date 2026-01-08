@@ -22,7 +22,7 @@ sigma = st.sidebar.slider("σ: volatility (%)", 5.0, 100.0, 20.0, 5.0) / 100
 N = st.sidebar.slider("N: number of simulations", 1000, 20000, 10000, 1000)
 
 st.sidebar.markdown("---")
-show_bs = st.sidebar.checkbox("show Black-Scholes comparison", value=True)
+show_bs = st.sidebar.checkbox("Show Black-Scholes Comparison", value=True)
 
 
 def black_scholes_call(S, K, T, r, sigma):
@@ -121,7 +121,7 @@ def create_plots(paths, payoffs, S0, K, T, option_price, N, r, bs_price=None):
     n_sims = np.arange(1, N + 1)
     running_avg = cumsum / n_sims
 
-    axes[2].plot(n_sims, running_avg, linewidth=1.5, color="blue", label="monte carlo")
+    axes[2].plot(n_sims, running_avg, linewidth=1.5, color="blue", label="Monte Carlo")
     axes[2].axhline(
         y=option_price,
         color="r",
@@ -136,7 +136,7 @@ def create_plots(paths, payoffs, S0, K, T, option_price, N, r, bs_price=None):
             color="green",
             linestyle=":",
             linewidth=2.5,
-            label=f"black-scholes: ${bs_price:.2f}",
+            label=f"Black-Scholes: ${bs_price:.2f}",
         )
 
     axes[2].set_xlabel("number of simulations")
@@ -155,18 +155,18 @@ with st.spinner("Running simulation..."):
     price, se, ci, paths, payoffs = monte_carlo_european_call(S0, K, T, r, sigma, N)
 
 # Display results
-st.subheader("results")
+st.subheader("Results")
 col1, col2, col3, col4 = st.columns(4)
-col1.metric("option price", f"${price:.2f}")
-col2.metric("std error", f"${se:.2f}")
-col3.metric("95% CI lower", f"${ci[0]:.2f}")
-col4.metric("95% CI upper", f"${ci[1]:.2f}")
+col1.metric("Option Price", f"${price:.2f}")
+col2.metric("Std Error", f"${se:.2f}")
+col3.metric("95% CI Lower", f"${ci[0]:.2f}")
+col4.metric("95% CI Upper", f"${ci[1]:.2f}")
 
 # additional statistics
 final_prices = paths[:, -1]
 itm = np.sum(final_prices > K)
-st.write(f"**paths in-the-money:** {itm:,} ({itm / N * 100:.1f}%)")
-st.write(f"**avg final price:** ${np.mean(final_prices):.2f}")
+st.write(f"**Paths In-The-Money:** {itm:,} ({itm / N * 100:.1f}%)")
+st.write(f"**Avg Final Price:** ${np.mean(final_prices):.2f}")
 
 # black-scholes comparison
 bs_price = None
@@ -176,75 +176,75 @@ if show_bs:
     error_pct = error_abs / bs_price * 100
 
     st.markdown("---")
-    st.subheader("method comparison")
+    st.subheader("Method Comparison")
 
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric("monte carlo", f"${price:.2f}")
-    col2.metric("black-scholes", f"${bs_price:.2f}")
-    col3.metric("absolute error", f"${error_abs:.2f}")
-    col4.metric("relative error", f"{error_pct:.2f}%")
+    col1.metric("Monte Carlo", f"${price:.2f}")
+    col2.metric("Black-Scholes", f"${bs_price:.2f}")
+    col3.metric("Absolute Error", f"${error_abs:.2f}")
+    col4.metric("Relative Error", f"{error_pct:.2f}%")
 
     within_ci = ci[0] <= bs_price <= ci[1]
     if within_ci:
         st.success(
-            f"✅ black-scholes price (${bs_price:.2f}) is within the 95% confidence interval"
+            f"Black-Scholes price (${bs_price:.2f}) is within the 95% confidence interval"
         )
     else:
         st.warning(
-            f"⚠️ black-scholes price (${bs_price:.2f}) is outside the confidence interval - try increasing N"
+            f"Black-Scholes price (${bs_price:.2f}) is outside the confidence interval - try increasing N"
         )
 
 # plots
-st.subheader("visualizations")
+st.subheader("Visualizations")
 fig = create_plots(paths, payoffs, S0, K, T, price, N, r, bs_price=bs_price)
 st.pyplot(fig)
 
 # educational content
 if show_bs:
-    with st.expander("📚 understanding monte carlo vs black-scholes"):
+    with st.expander("Understanding Monte Carlo vs Black-Scholes"):
         col1, col2 = st.columns(2)
 
         with col1:
             st.markdown("""
-            ### monte carlo simulation
-            **how it works:**
-            - simulates thousands of random stock price paths
-            - calculates payoff for each path
-            - averages and discounts to present value
-            
-            **advantages:**
-            - works for any option type (american, exotic, etc.)
-            - easy to add complexity (dividends, jumps)
-            - intuitive and flexible
-            
-            **disadvantages:**
-            - slower (needs many simulations)
-            - has sampling error (random variation)
-            - accuracy depends on N
+            ### Monte Carlo Simulation
+            **How It Works:**
+            - Simulates thousands of random stock price paths
+            - Calculates payoff for each path
+            - Averages and discounts to present value
+
+            **Advantages:**
+            - Works for any option type (American, exotic, etc.)
+            - Easy to add complexity (dividends, jumps)
+            - Intuitive and flexible
+
+            **Disadvantages:**
+            - Slower (needs many simulations)
+            - Has sampling error (random variation)
+            - Accuracy depends on N
             """)
 
         with col2:
             st.markdown("""
-            ### black-scholes formula
-            **how it works:**
-            - analytical solution from stochastic calculus
-            - closed-form mathematical equation
-            - instant calculation
-            
-            **advantages:**
-            - exact theoretical price
-            - no sampling error
-            - very fast (no simulation needed)
-            
-            **disadvantages:**
-            - only works for european options
-            - restrictive assumptions (constant volatility, no dividends, log-normal prices)
+            ### Black-Scholes Formula
+            **How It Works:**
+            - Analytical solution from stochastic calculus
+            - Closed-form mathematical equation
+            - Instant calculation
+
+            **Advantages:**
+            - Exact theoretical price
+            - No sampling error
+            - Very fast (no simulation needed)
+
+            **Disadvantages:**
+            - Only works for European options
+            - Restrictive assumptions (constant volatility, no dividends, log-normal prices)
             """)
 
         st.info("""
-        **why compare both?**
-        
-        monte carlo should converge to black-scholes as N → ∞ for european options.
-        comparing them demonstrates simulation accuracy and quantifies sampling error.
-        the relative error shows how close our MC estimate is to the theoretical value.
+        **Why Compare Both?**
+
+        Monte Carlo should converge to Black-Scholes as N → ∞ for European options.
+        Comparing them demonstrates simulation accuracy and quantifies sampling error.
+        The relative error shows how close our MC estimate is to the theoretical value.
         """)
